@@ -23,13 +23,17 @@ class SubscriptionPeriod
 
     protected $plan;
     protected $startDate;
+    protected $actualPlan;
 
     public function __construct(Plan|PlanCombination $plan, Carbon $startDate)
     {
         $this->plan = $plan;
         $this->startDate = $startDate;
 
-        if ($this->plan->trial_period > 0) {
+        // Determine the actual plan to check for trial period
+        $this->actualPlan = ($plan instanceof PlanCombination) ? $plan->plan : $plan;
+
+        if ($this->actualPlan->trial_period > 0) {
             $this->setTrialPeriod();
         } else {
             $this->setSubscriptionPeriod();
@@ -71,7 +75,7 @@ class SubscriptionPeriod
      */
     private function setTrialPeriod()
     {
-        $trial = new Period($this->plan->trial_interval, $this->plan->trial_period, $this->startDate);
+        $trial = new Period($this->actualPlan->trial_interval, $this->actualPlan->trial_period, $this->startDate);
         $this->trialEnd = $trial->getEndDate();
     }
 

@@ -41,7 +41,14 @@ trait HasTrialPeriodUsage
      */
     public function getTrialPeriodRemainingUsageIn(string $interval): int
     {
-        return Carbon::now()->{CarbonHelper::diffIn($interval)}($this->trial_ends_at);
+        // Check if the current date is after the trial end date
+        if (Carbon::now()->greaterThanOrEqualTo($this->trial_ends_at)) {
+            // The trial period has ended, return 0
+            return 0;
+        } else {
+            // Otherwise, return the remaining duration of the trial period
+            return Carbon::now()->{CarbonHelper::diffIn($interval)}($this->trial_ends_at);
+        }
     }
 
     /**
